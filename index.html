@@ -28,6 +28,7 @@
       max-width: 420px;
       position: relative;
       z-index: 2;
+      overflow: hidden; /* ✅ hard safety */
     }
 
     h1 {
@@ -59,18 +60,23 @@
       border: none;
       border-radius: 30px;
       cursor: pointer;
-      position: absolute;
       transition: all 0.2s ease;
       user-select: none;
       white-space: nowrap;
       word-break: keep-all;
     }
 
+    /* Desktop positioning */
+    #yesBtn,
+    #noBtn {
+      position: absolute;
+      top: 60px;
+    }
+
     #yesBtn {
       background: #e91e63;
       color: white;
       left: 40px;
-      top: 60px;
       box-shadow: 0 8px 20px rgba(233,30,99,0.4);
     }
 
@@ -78,7 +84,6 @@
       background: #eee;
       color: #444;
       left: 220px;
-      top: 60px;
     }
 
     .heart {
@@ -111,13 +116,24 @@
       }
     }
 
+    /* 📱 MOBILE FIX (Samsung safe) */
     @media (max-width: 480px) {
       .container {
         padding: 32px 20px;
       }
 
       .buttons {
-        height: 140px;
+        height: auto;
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        padding: 16px 0;
+      }
+
+      #yesBtn,
+      #noBtn {
+        position: static; /* ✅ critical fix */
+        transform: none !important;
       }
 
       button {
@@ -156,7 +172,7 @@
     let noCount = 0;
     let yesScale = 1;
 
-    /* ✅ Proper music activation */
+    /* Music start on interaction */
     function enableMusic() {
       music.play().catch(() => {});
       document.removeEventListener("click", enableMusic);
@@ -168,6 +184,8 @@
     document.addEventListener("touchstart", enableMusic, { once: true });
 
     function moveNoButton() {
+      if (window.innerWidth <= 480) return; // 🚫 no movement on mobile
+
       const rect = container.getBoundingClientRect();
       const btnRect = noBtn.getBoundingClientRect();
       const padding = 8;
