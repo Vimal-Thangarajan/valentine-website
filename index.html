@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Be My Valentine ❤️</title>
+  <title>Be My Valentine 💜</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     body {
       height: 100vh;
       margin: 0;
+      padding: 16px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -23,7 +24,7 @@
       padding: 40px 30px;
       border-radius: 24px;
       box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-      width: 90%;
+      width: 100%;
       max-width: 420px;
       position: relative;
       z-index: 2;
@@ -31,13 +32,13 @@
 
     h1 {
       color: #e91e63;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     h2 {
       color: #444;
       font-weight: normal;
-      margin-bottom: 20px;
+      margin-bottom: 14px;
     }
 
     p {
@@ -61,6 +62,8 @@
       position: absolute;
       transition: all 0.2s ease;
       user-select: none;
+      white-space: nowrap;
+      word-break: keep-all;
     }
 
     #yesBtn {
@@ -78,7 +81,6 @@
       top: 60px;
     }
 
-    /* Floating hearts */
     .heart {
       position: fixed;
       bottom: -20px;
@@ -94,7 +96,6 @@
       }
     }
 
-    /* Confetti */
     .confetti {
       position: fixed;
       width: 8px;
@@ -109,19 +110,35 @@
         transform: translateY(110vh) rotate(360deg);
       }
     }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 32px 20px;
+      }
+
+      .buttons {
+        height: 140px;
+      }
+
+      button {
+        font-size: 16px;
+        padding: 12px 26px;
+      }
+    }
   </style>
 </head>
 
 <body>
 
-  <audio id="bgMusic" loop>
+  <!-- 🎶 Background music -->
+  <audio id="bgMusic" loop preload="auto">
     <source src="love.mp3" type="audio/mpeg" />
   </audio>
 
   <div class="container">
     <h1>Hey RUBA 💜</h1>
     <h2>Will you be my Valentine?</h2>
-    <p id="message"></p>
+    <p id="message">💖 Tap anywhere to start the music</p>
 
     <div class="buttons">
       <button id="yesBtn">Yes 💜</button>
@@ -138,26 +155,31 @@
 
     let noCount = 0;
     let yesScale = 1;
-    let musicStarted = false;
 
-    function startMusic() {
-      if (!musicStarted) {
-        music.play().catch(() => {});
-        musicStarted = true;
-      }
+    /* ✅ Proper music activation */
+    function enableMusic() {
+      music.play().catch(() => {});
+      document.removeEventListener("click", enableMusic);
+      document.removeEventListener("touchstart", enableMusic);
+      message.textContent = "";
     }
 
-    function moveNoButton() {
-      startMusic();
+    document.addEventListener("click", enableMusic, { once: true });
+    document.addEventListener("touchstart", enableMusic, { once: true });
 
+    function moveNoButton() {
       const rect = container.getBoundingClientRect();
       const btnRect = noBtn.getBoundingClientRect();
+      const padding = 8;
 
-      const maxX = rect.width - btnRect.width;
-      const maxY = rect.height - btnRect.height;
+      const maxX = rect.width - btnRect.width - padding;
+      const maxY = rect.height - btnRect.height - padding;
 
-      noBtn.style.left = Math.random() * maxX + "px";
-      noBtn.style.top = Math.random() * maxY + "px";
+      const x = Math.max(padding, Math.random() * maxX);
+      const y = Math.max(padding, Math.random() * maxY);
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
 
       noCount++;
       yesScale += 0.15;
@@ -169,23 +191,21 @@
     }
 
     noBtn.addEventListener("mouseenter", moveNoButton);
-    noBtn.addEventListener("touchstart", e => {
+    noBtn.addEventListener("touchstart", (e) => {
       e.preventDefault();
       moveNoButton();
     });
 
     yesBtn.addEventListener("click", () => {
-      startMusic();
       document.body.innerHTML = `
-        <div style="text-align:center;">
+        <div style="text-align:center; padding:40px;">
           <h1 style="color:#e91e63;">YAYYYYY!!! 💕🥰</h1>
-          <p>HER_NAME, you just made me the happiest person ❤️</p>
+          <p>RUBA, you just made me the happiest person ❤️</p>
         </div>
       `;
       startConfetti();
     });
 
-    /* Floating hearts */
     setInterval(() => {
       const heart = document.createElement("div");
       heart.className = "heart";
